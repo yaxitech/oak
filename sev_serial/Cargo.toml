@@ -7,4 +7,4 @@ license = "Apache-2.0"
 
 [dependencies]
 oak_sev_guest = { workspace = true, default-features = false }
-x86_64 = "*"
+x86_64 = { version = "*", default-features = false }
