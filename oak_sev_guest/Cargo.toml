@@ -21,4 +21,4 @@ static_assertions = "*"
 snafu = { version = "*", default-features = false }
 strum = { version = "*", default-features = false, features = ["derive"] }
 zerocopy = { version = "*", features = ["derive"] }
-x86_64 = "*"
+x86_64 = { version = "*", default-features = false, features = ["instructions"] }
