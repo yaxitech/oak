@@ -95,7 +95,7 @@ const MSR_REGISTER_MASK: u64 = 0xffff_ffff;
 ///
 /// See: Table 3 in <https://www.amd.com/system/files/TechDocs/56421-guest-hypervisor-communication-block-standardization.pdf>
 #[repr(C, align(4096))]
-#[derive(Debug, FromBytes)]
+#[derive(Copy, Clone, Debug, FromBytes)]
 pub struct Ghcb {
     /// Reserved. Must be 0.
     _reserved_0: [u8; 203],
