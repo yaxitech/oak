@@ -790,4 +790,19 @@ impl CCBlobSevInfo {
             _rsvd2: 0,
         }
     }
+
+
+    pub fn with_addresses(secrets: u64, cpuid: u64) -> Self {
+        Self {
+            magic: CC_BLOB_SEV_INFO_MAGIC,
+            version: 1,
+            _reserved: 0,
+            secrets_phys: secrets as usize,
+            secrets_len: 0x1000,
+            _rsvd1: 0,
+            cpuid_phys: cpuid as usize,
+            cpuid_len: 0x1000,
+            _rsvd2: 0,
+        }
+    }
 }
