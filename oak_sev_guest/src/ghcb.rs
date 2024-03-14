@@ -372,7 +372,7 @@ where
         ghcb.sw_exit_info_2 = core::mem::size_of::<u32>() as u64;
         // Use the shared_buffer as the unencrypted guest memory. This is mandated as of Version
         // 2 of the communication block.
-        ghcb.sw_scratch = gpa_base + (core::mem::offset_of!(Ghcb, shared_buffer) as u64);
+        ghcb.sw_scratch = gpa_base + /* (core::mem::offset_of!(Ghcb, shared_buffer) as u64) */ 2048;
         ghcb.valid_bitmap = BASE_VALID_BITMAP | ValidBitmap::SW_SCRATCH;
 
         self.do_vmg_exit()?;
@@ -400,7 +400,7 @@ where
         ghcb.sw_exit_info_1 = destination.as_u64();
         ghcb.sw_exit_info_2 = core::mem::size_of::<u32>() as u64;
         // Pointer to `shared_buffer` inside the GHCB.
-        ghcb.sw_scratch = gpa_base + (core::mem::offset_of!(Ghcb, shared_buffer) as u64);
+        ghcb.sw_scratch = gpa_base + /* (core::mem::offset_of!(Ghcb, shared_buffer) as u64) */ 2048;
         ghcb.valid_bitmap = BASE_VALID_BITMAP | ValidBitmap::SW_SCRATCH;
         // Safety: the shared buffer is bigger than an u32.
         ghcb.shared_buffer.as_bytes_mut()[0..core::mem::size_of::<u32>()]
