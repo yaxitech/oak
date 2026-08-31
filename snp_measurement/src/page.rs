@@ -25,7 +25,7 @@ use x86_64::{
     structures::paging::{PageSize, Size4KiB},
     PhysAddr,
 };
-use zerocopy::AsBytes;
+use zerocopy::{Immutable, IntoBytes};
 
 /// The size of the PageInfo struct.
 const PAGE_INFO_SIZE: usize = 112;
@@ -34,7 +34,7 @@ const PAGE_INFO_SIZE: usize = 112;
 ///
 /// See table 67 in <https://www.amd.com/system/files/TechDocs/56860.pdf>.
 #[repr(C)]
-#[derive(Debug, AsBytes)]
+#[derive(Debug, Immutable, IntoBytes)]
 pub struct PageInfo {
     /// The current measurement up to this point.
     pub digest_cur: [u8; 48],
@@ -176,7 +176,7 @@ impl Default for PageInfo {
 /// Whether the page is part of an initial migration image (IMI).
 ///
 /// For now we assume we won't have any IMI pages.
-#[derive(Debug, FromRepr, AsBytes)]
+#[derive(Debug, FromRepr, Immutable, IntoBytes)]
 #[repr(u8)]
 enum ImiPage {
     /// The page is not an IMI page.
@@ -186,7 +186,7 @@ enum ImiPage {
 /// The type of page being measured.
 ///
 /// See table 65 in <https://www.amd.com/system/files/TechDocs/56860.pdf>.
-#[derive(Debug, FromRepr, AsBytes)]
+#[derive(Debug, FromRepr, Immutable, IntoBytes)]
 #[repr(u8)]
 #[allow(unused)]
 pub enum PageType {

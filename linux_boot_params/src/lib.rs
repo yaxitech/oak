@@ -23,7 +23,7 @@ use core::{
 
 use bitflags::bitflags;
 use strum::{Display, FromRepr};
-use zerocopy::{AsBytes, FromBytes, FromZeroes};
+use zerocopy::{FromBytes, Immutable, IntoBytes};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Display, FromRepr)]
 #[repr(u32)]
@@ -146,7 +146,7 @@ impl CCSetupData {
 /// For more details see the Linux kernel docs:
 /// <https://www.kernel.org/doc/html/latest/x86/boot.html#the-real-mode-kernel-header>
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone, FromZeroes, FromBytes, AsBytes)]
+#[derive(Debug, Copy, Clone, FromBytes, Immutable, IntoBytes)]
 pub struct SetupHeader {
     /// The size of the setup code in 512-byte sectors.
     ///
@@ -384,7 +384,7 @@ pub struct SetupHeader {
     /// should update the kernel_alignment field with the alignment unit desired; typically:
     ///
     /// ``` kernel_alignment = 1 << min_alignment ```
-    /// 
+    ///
     /// There may be a considerable performance cost with an excessively misaligned kernel.
     /// Therefore, a loader should typically try each power-of-two alignment from kernel_alignment
     /// down to this alignment.
@@ -507,7 +507,7 @@ impl SetupHeader {
 }
 
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone, FromZeroes, FromBytes, AsBytes, PartialEq)]
+#[derive(Debug, Copy, Clone, FromBytes, Immutable, IntoBytes, PartialEq)]
 pub struct BootE820Entry {
     addr: usize,
     size: usize,
@@ -790,7 +790,6 @@ impl CCBlobSevInfo {
             _rsvd2: 0,
         }
     }
-
 
     pub fn with_addresses(secrets: u64, cpuid: u64) -> Self {
         Self {

@@ -19,8 +19,8 @@
 
 use core::mem::size_of;
 
-use aes_gcm::{AeadInPlace, Aes256Gcm, KeyInit, Nonce, Tag};
-use zerocopy::{AsBytes, FromBytes};
+use aes_gcm::{AeadInOut, Aes256Gcm, KeyInit, Nonce, Tag};
+use zerocopy::{FromBytes, IntoBytes};
 
 use crate::guest::{GuestMessage, Message};
 
@@ -78,12 +78,12 @@ impl GuestMessageEncryptor {
     ///
     /// We consume the input message because we encrypt its memory in place before copying it to the
     /// payload buffer that is shared with the hypervisor.
-    pub fn encrypt_message<M: AsBytes + FromBytes + Message>(
+    pub fn encrypt_message<M: IntoBytes + FromBytes + Message>(
         &mut self,
         mut message: M,
         destination: &mut GuestMessage,
     ) -> Result<(), &'static str> {
-        let buffer = message.as_bytes_mut();
+        let buffer = message.as_mut_bytes();
         destination.header.auth_header.message_type = M::get_message_type() as u8;
         let message_size = buffer.len();
         destination.header.auth_header.message_size = message_size as u16;
@@ -91,11 +91,11 @@ impl GuestMessageEncryptor {
         let mut iv_bytes = [0u8; IV_SIZE];
         iv_bytes[0..size_of::<u64>()]
             .copy_from_slice(destination.header.sequence_number.as_bytes());
-        let nonce = Nonce::from_slice(&iv_bytes[..]);
+        let nonce = Nonce::from(iv_bytes);
         let associated_data = destination.header.auth_header.as_bytes();
         let auth_tag = self
             .cipher
-            .encrypt_in_place_detached(nonce, associated_data, buffer)
+            .encrypt_inout_detached(&nonce, associated_data, buffer.into())
             .map_err(|aes_gcm::Error| "message encryption failed")?;
         // Only write the payload once we are sure the encryption succeeded.
         destination.payload[0..message_size].copy_from_slice(buffer);
@@ -108,7 +108,7 @@ impl GuestMessageEncryptor {
     /// Extracts a decrypted message from an encrypted `GuestMessage`.
     ///
     /// The sequence number is incremented automatically if the operation is successful.
-    pub fn decrypt_message<M: AsBytes + FromBytes + Message>(
+    pub fn decrypt_message<M: IntoBytes + FromBytes + Message>(
         &mut self,
         source: &GuestMessage,
     ) -> Result<M, &'static str> {
@@ -123,9 +123,9 @@ impl GuestMessageEncryptor {
         }
         let mut iv_bytes = [0u8; IV_SIZE];
         iv_bytes[0..size_of::<u64>()].copy_from_slice(sequence_number.as_bytes());
-        let nonce = Nonce::from_slice(&iv_bytes[..]);
+        let nonce = Nonce::from(iv_bytes);
         let associated_data = source.header.auth_header.as_bytes();
-        let buffer = result.as_bytes_mut();
+        let buffer = result.as_mut_bytes();
         if buffer.len() != source.header.auth_header.message_size as usize {
             return Err("invalid message length");
         }
@@ -133,9 +133,10 @@ impl GuestMessageEncryptor {
         // decrypt the payload in place. Copy the encrypted payload into the buffer and
         // decrypt it there.
         buffer.copy_from_slice(&source.payload[0..buffer.len()]);
-        let tag = Tag::from_slice(&source.header.auth_tag[0..size_of::<Tag>()]);
+        let tag = Tag::try_from(&source.header.auth_tag[0..size_of::<Tag>()])
+            .map_err(|_| "invalid tag length")?;
         self.cipher
-            .decrypt_in_place_detached(nonce, associated_data, buffer, tag)
+            .decrypt_inout_detached(&nonce, associated_data, buffer.into(), &tag)
             .map_err(|aes_gcm::Error| "couldn't decrypt message")?;
         self.sequence_number += 1;
         Ok(result)

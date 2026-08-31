@@ -19,7 +19,7 @@
 
 use bitflags::bitflags;
 use x86_64::{PhysAddr, VirtAddr};
-use zerocopy::{AsBytes, FromBytes, FromZeroes};
+use zerocopy::{FromBytes, IntoBytes};
 
 use crate::{
     cpuid::{CpuidInput, CpuidOutput},
@@ -112,7 +112,7 @@ const MSR_REGISTER_MASK: u64 = 0xffff_ffff;
 ///
 /// See: Table 3 in <https://www.amd.com/system/files/TechDocs/56421-guest-hypervisor-communication-block-standardization.pdf>
 #[repr(C, align(4096))]
-#[derive(Debug, FromZeroes, FromBytes)]
+#[derive(Debug, FromBytes)]
 pub struct Ghcb {
     /// Reserved. Must be 0.
     _reserved_0: [u8; 203],
@@ -216,7 +216,7 @@ impl AsRef<Ghcb> for Ghcb {
 static_assertions::assert_eq_size!(Ghcb, [u8; GHCB_PAGE_SIZE]);
 
 /// Flags indicating which fields in a specific GHCB instance are valid.
-#[derive(Debug, Default, FromZeroes, FromBytes)]
+#[derive(Debug, Default, FromBytes)]
 #[repr(transparent)]
 pub struct ValidBitmap(u128);
 
@@ -403,7 +403,7 @@ where
         ghcb.sw_scratch = gpa_base + /* (core::mem::offset_of!(Ghcb, shared_buffer) as u64) */ 2048;
         ghcb.valid_bitmap = BASE_VALID_BITMAP | ValidBitmap::SW_SCRATCH;
         // Safety: the shared buffer is bigger than an u32.
-        ghcb.shared_buffer.as_bytes_mut()[0..core::mem::size_of::<u32>()]
+        ghcb.shared_buffer.as_mut_bytes()[0..core::mem::size_of::<u32>()]
             .copy_from_slice(value.as_bytes());
         self.do_vmg_exit()
     }

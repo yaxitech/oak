@@ -17,7 +17,7 @@
 //! This module contains structs that can be used to interpret the contents of the CPUID page that
 //! is provisioned into the VM guest memory during SEV-SNP startup.
 
-use zerocopy::{FromBytes, FromZeroes};
+use zerocopy::FromBytes;
 
 use crate::interrupts::MutableInterruptStackFrame;
 
@@ -30,7 +30,7 @@ pub const CPUID_PAGE_SIZE: usize = 4096;
 ///
 /// See: Table 14 in <https://www.amd.com/system/files/TechDocs/56860.pdf>
 #[repr(C)]
-#[derive(Debug, FromZeroes, FromBytes)]
+#[derive(Debug, FromBytes)]
 pub struct CpuidFunction {
     /// The input values when CPUID was invoked.
     pub input: CpuidInput,
@@ -43,7 +43,7 @@ static_assertions::assert_eq_size!(CpuidFunction, [u8; 48]);
 
 /// The required input valus for invoking CPUID.
 #[repr(C)]
-#[derive(Debug, FromZeroes, FromBytes, PartialEq, Eq)]
+#[derive(Debug, FromBytes, PartialEq, Eq)]
 pub struct CpuidInput {
     /// The input value of the EAX register, which represents the CPUID leaf.
     pub eax: u32,
@@ -87,7 +87,7 @@ impl From<&mut MutableInterruptStackFrame> for CpuidInput {
 
 /// The resulting register values after invoking CPUID.
 #[repr(C)]
-#[derive(Debug, FromZeroes, FromBytes)]
+#[derive(Debug, FromBytes)]
 pub struct CpuidOutput {
     /// The EAX register output from calling CPUID.
     pub eax: u32,
@@ -103,7 +103,7 @@ pub struct CpuidOutput {
 ///
 /// See: Table 69 in <https://www.amd.com/system/files/TechDocs/56860.pdf>
 #[repr(C, align(4096))]
-#[derive(Debug, FromZeroes, FromBytes)]
+#[derive(Debug, FromBytes)]
 pub struct CpuidPage {
     /// The number of CPUID function results included in the page. Must not be greater than
     /// `CPUID_COUNT_MAX`.
