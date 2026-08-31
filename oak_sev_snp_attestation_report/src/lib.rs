@@ -21,13 +21,13 @@
 
 use bitflags::bitflags;
 use strum::FromRepr;
-use zerocopy::{AsBytes, FromBytes, FromZeroes};
+use zerocopy::{FromBytes, FromZeros, Immutable, IntoBytes};
 
 /// A signed attestation report.
 ///
 /// See Table 22 in <https://www.amd.com/system/files/TechDocs/56860.pdf>.
 #[repr(C)]
-#[derive(Debug, AsBytes, FromZeroes, FromBytes)]
+#[derive(Debug, Immutable, IntoBytes, FromBytes)]
 pub struct AttestationReport {
     /// The data contained in the report.
     pub data: AttestationReportData,
@@ -71,7 +71,7 @@ pub const REPORT_DATA_SIZE: usize = 64;
 ///
 /// See Table 22 in <https://www.amd.com/system/files/TechDocs/56860.pdf>.
 #[repr(C)]
-#[derive(Debug, AsBytes, FromZeroes, FromBytes)]
+#[derive(Debug, Immutable, IntoBytes, FromBytes)]
 pub struct AttestationReportData {
     /// The version of the attestation report format.
     ///
@@ -232,7 +232,7 @@ pub enum SigningAlgorithm {
 ///
 /// See Table 9 in <https://www.amd.com/system/files/TechDocs/56860.pdf>.
 #[repr(C)]
-#[derive(Debug, AsBytes, FromZeroes, FromBytes)]
+#[derive(Debug, Immutable, IntoBytes, FromBytes)]
 pub struct GuestPolicy {
     /// The minimum ABI minor version required to launch the guest.
     pub abi_minor: u8,
@@ -270,7 +270,7 @@ impl GuestPolicy {
 ///
 /// See Table 3 in <https://www.amd.com/system/files/TechDocs/56860.pdf>.
 #[repr(C)]
-#[derive(Debug, AsBytes, FromZeroes, FromBytes)]
+#[derive(Debug, Immutable, IntoBytes, FromBytes)]
 pub struct TcbVersion {
     /// The current security version number (SVN) of the secure processor (PSP) bootloader.
     pub boot_loader: u8,
@@ -327,7 +327,7 @@ pub enum AuthorKey {
 ///
 /// See Table 119 in <https://www.amd.com/system/files/TechDocs/56860.pdf>.
 #[repr(C)]
-#[derive(Debug, AsBytes, FromZeroes, FromBytes)]
+#[derive(Debug, Immutable, IntoBytes, FromBytes)]
 pub struct EcdsaSignature {
     /// The R component of this signature. The value is zero-extended and little-endian encoded.
     pub r: [u8; 72],

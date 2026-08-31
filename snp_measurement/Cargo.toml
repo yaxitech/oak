@@ -6,15 +6,15 @@ edition = "2021"
 license = "Apache-2.0"
 
 [dependencies]
-anyhow = "*"
-clap = { version = "*", features = ["derive"] }
-env_logger = "*"
-goblin = "*"
-hex = "*"
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+env_logger = "0.11"
+goblin = "0.10"
+hex = "0.4"
 oak_sev_guest = { workspace = true }
-log = "*"
-sha2 = "*"
-static_assertions = "*"
-strum = { version = "*", default-features = false, features = ["derive"] }
-x86_64 = { version = "*", default-features = false }
-zerocopy = "0.7"
+log = "0.4"
+sha2 = "0.11"
+static_assertions = "1"
+strum = { version = "0.28", default-features = false, features = ["derive"] }
+x86_64 = { version = "0.15", default-features = false }
+zerocopy = "0.8"

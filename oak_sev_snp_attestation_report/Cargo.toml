@@ -6,7 +6,7 @@ edition = "2021"
 license = "Apache-2.0"
 
 [dependencies]
-bitflags = "*"
-static_assertions = "*"
-strum = { version = "*", default-features = false, features = ["derive"] }
-zerocopy = { version = "0.7", features = ["derive"] }
+bitflags = "2"
+static_assertions = "1"
+strum = { version = "0.28", default-features = false, features = ["derive"] }
+zerocopy = { version = "0.8", features = ["derive"] }
